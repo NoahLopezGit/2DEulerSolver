@@ -1,0 +1,26 @@
+program updatetest
+  
+  use update
+  
+  implicit none
+  !create cellVect
+  real, dimension(4,3) :: CellVect
+  !fluxvect
+  real, dimension(2,4,3) :: fluxvect
+  real, dimension(4,2)   :: Nodes
+  real, dimension(4)     :: residual
+
+  CellVect(:,1) = 1.0
+  CellVect(:,2) = 1.0
+  CellVect(:,3) = 1.0
+  fluxvect = stenflux(CellVect)
+  print "(2F7.3)", fluxvect(:,:,1)
+  print "(2F7.3)", fluxvect(:,:,2)
+  print "(2F7.3)", fluxvect(:,:,3)
+
+  Nodes(:,1) = (/0.0,0.5,0.5,0.0/)
+  Nodes(:,2) = (/0.0,0.0,0.5,0.5/)
+
+  residual = get_residual(fluxvect,fluxvect,Nodes)
+  print *, residual
+end program updatetest

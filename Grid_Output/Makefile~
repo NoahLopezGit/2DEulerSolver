@@ -1,0 +1,5 @@
+output : 
+	gfortran-10 -o algeGrid2 algeGrid2.f90
+	gfortran-10 -o laplacesmoothing2 laplacesmoothing2.f90
+	gfortran-10 -o Euler_solver Euler_Solver.f90
+
