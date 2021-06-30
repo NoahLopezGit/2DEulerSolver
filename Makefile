@@ -1,6 +1,6 @@
 TARGET  = main
-MODULES = readGrid.f95 CellType.f95 update.f95
-MODOUT  = readGrid.o CellType.o update.o
+MODULES = readGrid.f95 CellType.f95 update.f95 variables.f95
+MODOUT  = readGrid.o CellType.o update.o variables.o
 OBJ     = $(MODOUT) main.o
 
 $(TARGET): $(OBJ)

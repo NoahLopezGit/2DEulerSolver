@@ -2,19 +2,10 @@ program main
   use readGrid !module containing loading grid
   use CellType !module containing cell data type
   use update
+  use variables !module containing used variables
   
   implicit none
 
-  integer :: dimi,dimj,i,j,r,s,iter,step
-  real, dimension(:,:,:), allocatable     :: grid
-  type(Cell), dimension(:,:), allocatable :: Cell_Mat
-  real, dimension(4)     :: residual
-  real, dimension(2,4,3) :: stenH,stenV
-  real, dimension(4,3)   :: CellVect_H, CellVect_V
-  real, dimension(4)     :: alpha,Cell_Temp
-  real                   :: dt,A,RhoA,Pa,Ua,Va,Ea
-  alpha(:) = (/0.25,0.33,0.5,1.0/)
-  dt = .000001
   !getting laplace grid data
 
   grid = readnstore()
@@ -51,22 +42,29 @@ program main
      end do
   end do
   
-  do step=1,500 !time steps
+  do step=1,5000 !time steps
      do i=3,dimi+1
         do j=3,dimj+1
            
            A = get_area(Cell_Mat(i,j)%nodes(:,:))
            
            !boundary conditions with ghost cells
+           !walls
            if (j==3) then !bottom wall
-              !set ghost cell to reflected velocity
+              !set ghost cells to reflected velocity
               Cell_Mat(i,j-1)%states(:) = get_reflect(Cell_Mat(i,j)%states(:),&
+                   Cell_Mat(i,j)%nodes(:,:),0)
+              Cell_Mat(i,j-2)%states(:) = get_reflect(Cell_Mat(i,j+1)%states(:),&
                    Cell_Mat(i,j)%nodes(:,:),0)
            else if (j==dimj+1) then !top wall
               Cell_Mat(i,j+1)%states(:) = get_reflect(Cell_Mat(i,j)%states(:),&
                    Cell_Mat(i,j)%nodes(:,:),1)
+              Cell_Mat(i,j+2)%states(:) = get_reflect(Cell_Mat(i,j-1)%states(:),&
+                   Cell_Mat(i,j)%nodes(:,:),1)
            end if
-
+           !inlet (TODO)
+           !outlet (TODO)
+           
 
            !update
            do iter=1,3
@@ -75,6 +73,8 @@ program main
            end do
            
            Cell_Temp = Cell_Mat(i,j)%states(:)
+           dissipation(:) = get_dissipation(Cell_Mat(i-2:i+2,j-2:j+2))   !change when code for dissipation is made
+           !Runge Kutta timestepping
            do iter=1,4
               CellVect_H(:,2) = Cell_Mat(i,j)%states(:)
               CellVect_V(:,2) = Cell_Mat(i,j)%states(:)
@@ -83,7 +83,7 @@ program main
 
               residual = get_residual(stenH,stenV,Cell_Mat(i,j)%nodes(:,:))
 
-              Cell_Mat(i,j)%states(:) = Cell_Temp(:) - alpha(iter)*dt/A*residual(:)
+              Cell_Mat(i,j)%states(:) = Cell_Temp(:) - alpha(iter)*dt/A*(residual(:) - dissipation(:))
            end do
 
         end do
