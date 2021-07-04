@@ -6,13 +6,16 @@ module variables
   integer :: dimi,dimj
   
   !iteration variables
-  integer :: i,j,r,s,iter,step
+  integer :: i,j,r,s,iter,step,timesteps
 
   !x/y laplace smoothd grid data [i,j,x or y]
   real, dimension(:,:,:), allocatable     :: grid
 
   !Cell data object (has node and state data)
   type(Cell), dimension(:,:), allocatable :: Cell_Mat
+
+  !dissipation matrix for writing data
+  real, dimension(:,:,:,:), allocatable :: dissipation_mat
 
   !residual and dissipation for updating
   real, dimension(4)     :: residual,dissipation
@@ -26,7 +29,7 @@ module variables
   real, parameter, dimension(4) :: alpha = (/0.25,0.33,0.5,1.0/)
 
   !timestep value
-  real, parameter        :: dt = 0.000001
+  real, parameter        :: dt = 0.0000001
 
   !area placeholder
   real                   :: A

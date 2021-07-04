@@ -3,16 +3,20 @@ program main
   use CellType !module containing cell data type
   use update
   use variables !module containing used variables
+  use dissipation_mod
   
   implicit none
 
+  !config
+  timesteps = 1000
   !getting laplace grid data
-
+  
   grid = readnstore()
   dimi = size(grid, 1)
   dimj = size(grid, 2)
 
   allocate(Cell_Mat(dimi+3,dimj+3)) !allocate space for all cells and 4 ghost cells in each dim
+  allocate(dissipation_mat(timesteps,4,dimi-1,dimj-1)) !allocate for dissipation matrix
 
   !iterate and set zeros for whole domain
   Pa = 100*10**3.0
@@ -42,7 +46,7 @@ program main
      end do
   end do
   
-  do step=1,5000 !time steps
+  do step=1,timesteps !time steps
      do i=3,dimi+1
         do j=3,dimj+1
            
@@ -73,7 +77,8 @@ program main
            end do
            
            Cell_Temp = Cell_Mat(i,j)%states(:)
-           dissipation(:) = get_dissipation(Cell_Mat(i-2:i+2,j-2:j+2))   !change when code for dissipation is made
+           dissipation(:) = get_dissipation(Cell_Mat(i-2:i+2,j-2:j+2))/dt
+           dissipation_mat(step,:,i-2,j-2) = dissipation(:)
            !Runge Kutta timestepping
            do iter=1,4
               CellVect_H(:,2) = Cell_Mat(i,j)%states(:)
@@ -90,6 +95,21 @@ program main
      end do
   end do
 
+  !writing dissipation to file (over iterations)
+  open(4,file="dissipation.txt",status="replace")
+  do step=1,timesteps !over ten steps
+     write(4, *)  "     "
+     write(4, *)  "Time Step = ", step
+     write(4, *)  "     "
+     do iter=1,4 !4 variables
+        do j=1,dimj-1
+           write(4,"(104F10.3)") dissipation_mat(step,iter,:,dimj-j)
+           !print *, dissipation_mat(step,iter,:,dimj+3-j+1)
+        end do
+        write(4, *)  "     " 
+     end do
+  end do
+  close(4)
   !writing the cell states to grid
   open(3,file="results.txt",status="replace")
   do i=1,2
