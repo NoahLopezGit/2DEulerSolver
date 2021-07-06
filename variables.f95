@@ -2,11 +2,38 @@ module variables
   use CellType
   implicit none
 
+  !---------------------config---------------------------!
+  
+  !timestepping
+  real, parameter :: dt = 0.00001 !timestep value (s)
+  integer, parameter :: timesteps=1000 !amt of timesteps
+  
+  !initial conditions
+  real, parameter :: rho0=1.225 !density (kg/m^3)
+  real, parameter :: u0=0.0,v0=0.0 !velocities (m/s)
+  real, parameter :: T0 = 273.15 !temp (K)
+  real :: P0 !pressure (Pa)
+  real :: E0 !energy (?)
+  
+  !inlet conditions
+  real, parameter :: T_i=273.15 !temp (K)
+  real, parameter :: P_i=100*10**3.0 !pressure (Pa)
+  
+  !outlet conditions
+  real, parameter :: P_out = 95*10**3.0 !pressure (Pa)
+  
+  !constants
+  real, parameter :: gamma=1.4 !gamma air
+  real, parameter :: Rc=287 !gas constant air
+  real, parameter :: Cp=1.004 !specific heat air
+  !-------------------endconfig--------------------------!
+
+  
   !max lengths for j and i dimensions
   integer :: dimi,dimj
   
   !iteration variables
-  integer :: i,j,r,s,iter,step,timesteps
+  integer :: i,j,r,s,iter,step
 
   !x/y laplace smoothd grid data [i,j,x or y]
   real, dimension(:,:,:), allocatable     :: grid
@@ -28,14 +55,20 @@ module variables
   !runge kutta time stepping constants
   real, parameter, dimension(4) :: alpha = (/0.25,0.33,0.5,1.0/)
 
-  !timestep value
-  real, parameter        :: dt = 0.0000001
-
   !area placeholder
-  real                   :: A
+  real :: A
   
-  !initial states (Density,Pressure,Velocity,Energy)
-  real                   :: RhoA,Pa,Ua,Va,Ea
+  !boundary cell variables
+  real :: rho_in !internal density
+  real :: u_in,v_in !internal velocities
+  real :: rho_bc !density (kg/m^3)
+  real :: T_bc !temp (K)
+  real :: P_bc !pressure (K)
+  real :: u_bc,v_bc !velocities
+  real :: rhoE_bc !density x energy
+  
+  
+  
 
 
 end module variables
