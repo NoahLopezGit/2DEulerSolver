@@ -33,14 +33,18 @@ program main
 
   !allocations
   allocate(Cell_Mat(dimi+3,dimj+3)) !allocate space for all cells and 4 ghost cells in each dim
-  !allocate(dissipation_mat(timesteps,4,dimi-1,dimj-1)) !allocate for dissipation matrix
+  allocate(dissipation_mat(timesteps,4,dimi-1,dimj-1)) !allocate for dissipation matrix
+  allocate(delta_vec(timesteps,4))
+  
 
   
   !set initial conditions over whole domain
   E0 = (P0)/((gamma-1.0)*rho0) + 0.5*(u0**2.0 + v0**2.0) !energy calculation
+  initial_state = (/rho0,rho0*u0,rho0*v0,rho0*E0/)
+  norm_state = (/rho0,rho0*u0 + 10.0,rho0*v0 + 10.0 ,rho0*E0/)
   do i=1,dimi+3
      do j=1,dimj+3
-        Cell_Mat(i,j)%states(:) = (/rho0,rho0*u0,rho0*v0,rho0*E0/)
+        Cell_Mat(i,j)%states(:) = initial_state
      end do
   end do
 
@@ -59,6 +63,7 @@ program main
 
   
   !solver
+  delta_vec(:,:) = 0.0
   do step=1,timesteps !time steps
      do i=3,dimi+1
         do j=3,dimj+1
@@ -79,6 +84,8 @@ program main
               Cell_Mat(i,j+2)%states(:) = get_reflect(Cell_Mat(i,j-1)%states(:),&
                    Cell_Mat(i,j)%nodes(:,:),1)
            end if
+
+           
            !inlet
            if (i==3) then
               !get internal values
@@ -96,6 +103,7 @@ program main
               Cell_Mat(i-1,j)%states(:) = (/rho_bc,rho_bc*u_bc,rho_bc*v_bc,rhoE_bc/)
               Cell_Mat(i-2,j)%states(:) = (/rho_bc,rho_bc*u_bc,rho_bc*v_bc,rhoE_bc/)
            end if
+
            
            !outlet 
            if(i==dimi+1) then
@@ -121,9 +129,9 @@ program main
            end do
            Cell_Temp = Cell_Mat(i,j)%states(:)
 
-           !dissipation not work atm
-           dissipation(:) = 0.0 !get_dissipation(Cell_Mat(i-2:i+2,j-2:j+2))/dt
-           !dissipation_mat(step,:,i-2,j-2) = dissipation(:)
+           !dissipation not work atm?
+           dissipation(:) = get_dissipation(Cell_Mat(i-2:i+2,j-2:j+2))
+           dissipation_mat(step,:,i-2,j-2) = dissipation(:)
            
            !Runge Kutta timestepping
            do iter=1,4
@@ -134,49 +142,64 @@ program main
 
               residual = get_residual(stenH,stenV,Cell_Mat(i,j)%nodes(:,:))
 
-              Cell_Mat(i,j)%states(:) = Cell_Temp(:) - alpha(iter)*dt/A*(residual(:) - dissipation(:))
+              Cell_Mat(i,j)%states(:) = Cell_Temp(:) + alpha(iter)*dt/A*(dissipation(:) - residual(:))
            end do
 
+           !convergence analysis states normalized by initial state
+           delta_vec(step,:) = delta_vec(step, :) + abs(Cell_Mat(i,j)%states(:) - Cell_Temp(:)) / norm_state(:)  
+           
         end do
      end do
   end do
 
-  
-  !writing dissipation to file (over iterations)
-  !open(4,file="dissipation.txt",status="replace")
-  !do step=1,timesteps !over ten steps
-  !   write(4, *)  "     "
-  !   write(4, *)  "Time Step = ", step
-  !   write(4, *)  "     "
-  !   do iter=1,4 !4 variables
-  !      do j=1,dimj-1
-  !         write(4,"(104F10.3)") dissipation_mat(step,iter,:,dimj-j)
-  !         !print *, dissipation_mat(step,iter,:,dimj+3-j+1)
-  !      end do
-  !      write(4, *)  "     " 
-  !   end do
-  !end do
-  !close(4)
+  if (write_convergence .eqv. .true.) then
+     !writing convergence data to txt file
+     open(5,file="../2dEuler_results/ConvergenceData.txt",status="replace")
+     do step=1,timesteps
+        write(5, "(4F10.4)") delta_vec(step,:)
+     end do
+     close(5)
+  end if
 
-  
-  !writing final cells state
-  open(3,file="results.txt",status="replace")
-  do i=1,2
-     do j=1,dimj+3
-        write(3,"(104F10.3)") Cell_Mat(:,dimj+3-j+1)%nodes(1,i)
+  if (write_dissipation .eqv. .true.) then
+     !writing dissipation to file (over iterations)
+     open(4,file="../2dEuler_results/dissipation.txt",status="replace")
+     do step=1,timesteps !over ten steps
+        write(4, *)  "     "
+        write(4, *)  "Time Step = ", step
+        write(4, *)  "     "
+        do iter=1,4 !4 variables
+           do j=1,dimj-1
+              write(4,"(104F10.3)") dissipation_mat(step,iter,:,dimj-j)
+              !print *, dissipation_mat(step,iter,:,dimj+3-j+1)
+           end do
+           write(4, *)  "     " 
+        end do
      end do
-     write(3,*) "  "
-  end do
-  
-  do i=1,4
-     do j=1,dimj+3!all cells including ghost cells
-        write(3,"(104F15.3)") Cell_Mat(:,dimj+3-j+1)%states(i)
+     close(4)
+  end if
+
+  if (write_states .eqv. .true.) then
+     !writing final cells state
+     open(3,file="../2dEuler_results/results.txt",status="replace")
+     do i=1,2
+        do j=1,dimj+3
+           write(3,"(104F10.3)") Cell_Mat(:,dimj+3-j+1)%nodes(1,i)
+        end do
+        write(3,*) "  "
      end do
-     write(3,*) "    "
-  end do
-  close(3)
+
+     do i=1,4
+        do j=1,dimj+3!all cells including ghost cells
+           write(3,"(104F15.3)") Cell_Mat(:,dimj+3-j+1)%states(i)
+        end do
+        write(3,*) "    "
+     end do
+     close(3)
+  end if
   
   deallocate(Cell_Mat)
-  !deallocate(dissipation_mat)
+  deallocate(dissipation_mat)
+  deallocate(delta_vec)
   
 end program main

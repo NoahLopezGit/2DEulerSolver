@@ -5,8 +5,8 @@ module variables
   !---------------------config---------------------------!
   
   !timestepping
-  real, parameter :: dt = 0.00001 !timestep value (s)
-  integer, parameter :: timesteps=1000 !amt of timesteps
+  real, parameter :: dt = 0.000001 !timestep value (s)
+  integer, parameter :: timesteps=15000 !amt of timesteps
   
   !initial conditions
   real, parameter :: rho0=1.225 !density (kg/m^3)
@@ -26,8 +26,22 @@ module variables
   real, parameter :: gamma=1.4 !gamma air
   real, parameter :: Rc=287 !gas constant air
   real, parameter :: Cp=1.004 !specific heat air
+
+  !result control
+  logical, parameter :: write_convergence = .true.
+  logical, parameter :: write_dissipation = .false.
+  logical, parameter :: write_states = .true.
+  
   !-------------------endconfig--------------------------!
 
+  !convergence holder
+  real, dimension(:,:), allocatable :: delta_vec
+
+  !Initial State Placeholder
+  real, dimension(4) :: initial_state
+
+  !Norm State Placeholder
+  real, dimension(4) :: norm_state
   
   !max lengths for j and i dimensions
   integer :: dimi,dimj

@@ -1,0 +1,26 @@
+program dissipation_testing
+  use dissipation_mod
+  use CellType
+  implicit none
+
+  type(Cell), dimension(5,5) :: Cell_Matrix
+
+  real :: inum,jnum
+  integer :: i,j
+  
+  !create 5x5 matrix of cells
+  !Cell_Matrix(:,:)%states(:) = (/1.225,0.0,0.0,1.225*100*10**3.0/)
+  !building nodes
+  do i=1,5
+     do j=1,5
+        inum=float(i)-3.0
+        jnum=float(i)-3.0
+        Cell_Matrix(i,j)%states(:) = (/1.225,0.0,0.0,1.225*100*10**3.0/)
+        Cell_Matrix(i,j)%nodes(:,1) = (/inum,inum+1,inum+1,inum/)
+        Cell_Matrix(i,j)%nodes(:,2) = (/jnum,jnum+1,jnum+1,jnum/)
+        print *, Cell_Matrix(i,j)%states(:)
+        print *, " "
+     end do
+  end do
+  
+end program dissipation_testing
