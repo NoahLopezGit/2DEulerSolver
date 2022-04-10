@@ -7,3 +7,11 @@ Note: this project is not finished... It will give a solution but not the best s
 I need to verify if my implementation is correct now. It seems to be giving correct results
 
 Going to clean up the project to make the structure more clear. Also going to go back and fix dissipation scheme so the solver is stable.
+
+To build the executable:
+1. open terminal in 2DEulerSolver ("root") directory
+2. type and enter : $ make
+3. type and enter : $ make clean 
+    will clean up extra files
+4. type and enter : $ ./main 
+    will run the main file
