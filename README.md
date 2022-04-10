@@ -4,4 +4,6 @@ This is a project to numerically solve the euler equations over a channel with a
 To install project: $ git clone https://github.com/FrostyNip/2DEulerSolver
 
 Note: this project is not finished... It will give a solution but not the best solution.
-I need to verify if my implementation is correct now. It seems to be giving correct results.
+I need to verify if my implementation is correct now. It seems to be giving correct results
+
+Going to clean up the project to make the structure more clear. Also going to go back and fix dissipation scheme so the solver is stable.
