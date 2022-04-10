@@ -12,5 +12,5 @@ To build the executable:
 2. type and enter : $ make
 3. type and enter : $ make clean </br>
     will clean up extra files
-4. type and enter : $ ./main 
+4. type and enter : $ ./main </br>
     will run the main file
