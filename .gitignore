@@ -2,3 +2,7 @@ testing.f95
 *.o
 *.mod
 a.out
+Simple_FVM/simple_fvm_test
+Simple_FVM/simple_fvm_test.f95
+Simple_FVM/compile_testing.sh
+Simple_FVM/testing_directory
