@@ -1,6 +1,6 @@
 program laplaceGrid
   implicit none
-
+  !TODO need to adapt this to new grid scheme
   !will generate the direchlet bcs for laplace smoothing
   integer  :: Imax,Jmax,i,j
   real, dimension(:,:), allocatable :: x,y
@@ -11,7 +11,7 @@ program laplaceGrid
 
   real                              :: x_prev,y_prev,err_sum1,err_sum2,err_tot
   real, dimension(:,:), allocatable :: a,b,g,c,a1,a2,a3,a4,a5,a6,a7,a8
-  real, dimension(:), allocatable   :: slope 
+  real, dimension(:), allocatable   :: slope
 
   !setting up variables
   !============================================================================================!
@@ -75,7 +75,7 @@ program laplaceGrid
   !=====================================================================================!
   !code to adjust (x,y)[l] by laplace smoothing
   print *, "Starting laplace smoothing"
-  
+
   do itr=1,5000
      err_sum1 = 0
      err_sum2 = 0
@@ -128,7 +128,7 @@ program laplaceGrid
      !print *, "Updating y"
      do i=2,dimi-1
         do j=2,dimj-1
-           y_prev = y(i,j) 
+           y_prev = y(i,j)
            y(i,j) = a1(i-1,j-1)*y(i+1,j) &
                 +a2(i-1,j-1)*y(i-1,j)    &
                 +a3(i-1,j-1)*y(i+1,j+1)  &
@@ -158,7 +158,7 @@ program laplaceGrid
 
            !enforcing neumann perpindilularity
            if (slope(i) /= 0) then
-              x(i,1) = (x(i,1)*slope(i)+x(i,2)*(1/slope(i))+y(i,2)-y(i,1)) / (slope(i)+(1/slope(i)))       
+              x(i,1) = (x(i,1)*slope(i)+x(i,2)*(1/slope(i))+y(i,2)-y(i,1)) / (slope(i)+(1/slope(i)))
               y(i,1) = y(i,1) + (x(i,2)-x(i,1))*slope(i)
               !else if (slope(i)==0) then
               !x(i,2) =  x(i,1)
@@ -219,7 +219,7 @@ program laplaceGrid
      end do
   end do
   close(4)
-  
+
   !print *, "X matrix"
   !print "(21F7.3)", x
   !print *, "Y matrix"
