@@ -31,7 +31,6 @@ contains
       read(1,*) (grid(itr,j,1), grid(itr,j,2), itr=1,width)
     end do
     close(1)
-    print *, grid
   end subroutine read_grid
 
 end module module_read_grid
