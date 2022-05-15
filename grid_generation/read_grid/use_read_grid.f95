@@ -1,5 +1,5 @@
 program use_read_grid
-  use module_read_grid
+  use mod_read_grid
   implicit none
   integer :: width,height
   integer :: i,j,itr

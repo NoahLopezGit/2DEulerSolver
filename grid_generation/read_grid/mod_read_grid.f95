@@ -1,4 +1,4 @@
-module module_read_grid
+module mod_read_grid
   implicit none
 
 contains
@@ -33,4 +33,4 @@ contains
     close(1)
   end subroutine read_grid
 
-end module module_read_grid
+end module mod_read_grid
