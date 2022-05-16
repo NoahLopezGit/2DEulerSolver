@@ -1,6 +1,7 @@
 program test_mod_cell_geometry
   use mod_read_grid
   use mod_cell_geometry
+  use mod_cell_data_struc
   implicit none
   !testing outward normal calculations
   !loading square grid into grid
@@ -21,13 +22,6 @@ program test_mod_cell_geometry
 
   call read_grid(filename,grid)
 
-  !need to test outward normal going counter clockwise from bot left node
-  call select_node(1,i,j)
-  print *, i,j
-  call select_node(3,i,j)
-  print *, i,j
-  call select_node(5,i,j)
-  print *, i,j
 
   cell_index = (/2,2/)
   side_num = 2

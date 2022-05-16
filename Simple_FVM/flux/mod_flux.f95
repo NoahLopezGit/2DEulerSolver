@@ -2,20 +2,31 @@ module mod_flux
 implicit none
 
 contains
-  function calc_flux(cell_index,node_pair)result(cell_flux)
+  function calc_con_flux(grid,cell_index,side_num)result(cell_flux)
     implicit none
+    real, dimension(:,:,:) :: grid
+    integer, dimension(2) :: cell_index
+    real, dimension(2) :: field_p, field_n
+    real, dimension(2,2) :: node_pair
+    real :: cell_flux
+    !calculates the flux of a convective quantity at one face
+    !using upwind differencing because that is what CFD codes mostly use
+
+    !need to calculate the field at the face
+      !will use linear diff for field at face
+      !need to get field at P and N cell
+    grid()
+  end function calc_con_flux
+
+
+  function calc_diff_flux(grid,cell_index,node_pair)result(cell_flux)
+    implicit none
+    real, dimension(:,:,:) :: grid
     integer, dimension(2) :: cell_index
     real, dimension(2,2) :: node_pair
     real :: cell_flux
-    !this will calculate the flux at the middle of one cell wall
-    !depending on the flux terms in the PDE you are trying to solve, the
-      !code here might change
-    !the PDE I am trying to solve is du/dt + div(k*divu) = 0
-    !meaning over each side our sum is: ((K*du/dx+K*du/dy).n)*Side_length
-    !Where n is the normal outward vector
-    !to find du/dx, du/dy is found by the change in value over distance at
-      !the two respective cell centers
+    !Calculates flux of a diffusive term at one face.
 
-    !lets start by finding the normal outward vector
-  end function calc_flux
+
+  end function calc_diff_flux
 end module mod_flux
