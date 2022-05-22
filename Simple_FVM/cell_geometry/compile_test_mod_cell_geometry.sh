@@ -1,7 +1,8 @@
 #!/bin/bash
-ConfigSrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/config.f95
-ReadGridSrc=/home/frosty/projects/2DEulerSolver/grid_generation/read_grid/mod_read_grid.f95
-CellDataStrucSrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/cell_data_struc/mod_cell_data_struc.f95
+ParentDirectory=$(cd ../../ && pwd)
+ConfigSrc="$ParentDirectory"/Simple_FVM/config.f95
+ReadGridSrc="$ParentDirectory"/read_grid/mod_read_grid.f95
+CellDataStrucSrc="$ParentDirectory"/Simple_FVM/cell_data_struc/mod_cell_data_struc.f95
 
 gfortran -c $ConfigSrc
 gfortran -c $ReadGridSrc

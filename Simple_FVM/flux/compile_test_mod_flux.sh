@@ -1,5 +1,7 @@
 #!/bin/bash
-ConfigSrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/config.f95
+ParentDirectory=$(cd ../../ && pwd)
+
+ConfigSrc="$ParentDirectory"/Simple_FVM/config.f95
 
 gfortran -c $ConfigSrc
 gfortran -c mod_flux.f95

@@ -1,7 +1,10 @@
-ConfigSrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/config.f95
-ModReadGridSrc=/home/frosty/projects/2DEulerSolver/grid_generation/read_grid/mod_read_grid.f95
-ModCellDataStrucSrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/cell_data_struc/mod_cell_data_struc.f95
-ModCellGeometrySrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/cell_geometry/mod_cell_geometry.f95
+#!/bin/bash
+ParentDirectory=$(cd ../../ && pwd)
+
+ConfigSrc="$ParentDirectory"/Simple_FVM/config.f95
+ModReadGridSrc="$ParentDirectory"/grid_generation/read_grid/mod_read_grid.f95
+ModCellDataStrucSrc="$ParentDirectory"/Simple_FVM/cell_data_struc/mod_cell_data_struc.f95
+ModCellGeometrySrc="$ParentDirectory"/Simple_FVM/cell_geometry/mod_cell_geometry.f95
 
 gfortran -c $ConfigSrc
 gfortran -c $ModReadGridSrc

@@ -1,5 +1,8 @@
-ConfigSrc=/home/frosty/projects/2DEulerSolver/Simple_FVM/config.f95
-ModCellGeometrySRC=/home/frosty/projects/2DEulerSolver/Simple_FVM/cell_geometry/mod_cell_geometry.f95
+#!/bin/bash
+ParentDirectory=$(cd ../../ && pwd)
+
+ConfigSrc="$ParentDirectory"/Simple_FVM/config.f95
+ModCellGeometrySRC="$ParentDirectory"/Simple_FVM/cell_geometry/mod_cell_geometry.f95
 
 gfortran -c $ConfigSrc
 gfortran -c $ModCellGeometrySRC
