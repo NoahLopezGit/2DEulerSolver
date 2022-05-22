@@ -1,4 +1,5 @@
 module mod_cell_data_struc
+  use mod_cell_geometry
   implicit none
   type Cell_Face
     integer :: neighbor_cell_id
@@ -12,6 +13,8 @@ module mod_cell_data_struc
     !will write a sort of bootstrap to get existing grids into this structure form
     integer :: cell_id
     type(Cell_Face), dimension(:), allocatable :: cell_faces !TODO: how to allocate?
+    real :: cell_area
+    real, dimension(2) :: cell_centroid
     real, dimension(:), allocatable :: cell_quantities
   end type Cell
 
@@ -23,11 +26,27 @@ contains
     type(Cell_Face), dimension(:) :: cell_faces
     type(Cell) :: myCell
 
+    !local variables
+    real, dimension(:,:), allocatable :: nodes
+    integer :: num_faces,i
+
     myCell%cell_id=cell_id
     allocate(myCell%cell_quantities(size(cell_quantities)))
     myCell%cell_quantities=cell_quantities
-    allocate(myCell%cell_faces(size(cell_faces)))
+    num_faces = size(cell_faces)
+    allocate(myCell%cell_faces(num_faces))
     myCell%cell_faces=cell_faces
+
+    !construct nodes for geometry calclulations
+    allocate(nodes(num_faces+1,2))
+    do i=1,num_faces
+      nodes(i,:) = myCell%cell_faces(i)%face_node_pair(1,:)
+    end do
+    !first node must be repeated for area and centroid functions
+    nodes(num_faces+1,:) = myCell%cell_faces(1)%face_node_pair(1,:)
+
+    myCell%cell_area = calc_cell_area(nodes)
+    myCell%cell_centroid = calc_cell_centroid(nodes)
 
   end function init_cell
 

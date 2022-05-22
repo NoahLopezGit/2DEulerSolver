@@ -2,29 +2,24 @@ module mod_flux
 implicit none
 
 contains
-  function calc_con_flux(grid,cell_index,side_num)result(cell_flux)
+  function calc_con_flux(cell_array,cell_id,cell_face)result(convective_flux)
     implicit none
-    real, dimension(:,:,:) :: grid
-    integer, dimension(2) :: cell_index
-    real, dimension(2) :: field_p, field_n
-    real, dimension(2,2) :: node_pair
-    real :: cell_flux
-    !calculates the flux of a convective quantity at one face
-    !using upwind differencing because that is what CFD codes mostly use
+    integer :: cell_id, cell_face
+    type(Cell) :: cell_array !this will be the cell array that is loaded by bootstrap_mesh
+    real, dimension(:) :: convective_flux
+    !Calculates convective flux at one face
+    !using the upwind scheme; as this is most "physically realistic"
+    !cells must store value of field at center
 
-    !need to calculate the field at the face
-      !will use linear diff for field at face
-      !need to get field at P and N cell
-    grid()
+
   end function calc_con_flux
 
 
-  function calc_diff_flux(grid,cell_index,node_pair)result(cell_flux)
+  function calc_diff_flux(cell_array,cell_id,cell_face)result(diffusive_flux)
     implicit none
-    real, dimension(:,:,:) :: grid
-    integer, dimension(2) :: cell_index
-    real, dimension(2,2) :: node_pair
-    real :: cell_flux
+    integer :: cell_id, cell_face
+    type(Cell) :: cell_array
+    real, dimension(:) :: diffisive_flux
     !Calculates flux of a diffusive term at one face.
 
 

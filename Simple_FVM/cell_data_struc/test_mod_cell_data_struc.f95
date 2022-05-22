@@ -13,6 +13,8 @@ program test_mod_cell_data_struc
 
   myCell = init_cell(node_ids,neighbor_cell_ids,cell_quantity)
   print *, "Cell quantity ",myCell%cell_quantities
-  print *, "Cell neighbor ids",myCell%neighbor_cell_ids
+  print *, "Cell neighbor ids",myCell%cell_faces%neighbor_cell_id
   print *, "Cell node ids",myCell%node_ids
+  print *, "Cell area",myCell%cell_area
+  print *, "Cell area",myCell%cell_centroid
 end program test_mod_cell_data_struc
