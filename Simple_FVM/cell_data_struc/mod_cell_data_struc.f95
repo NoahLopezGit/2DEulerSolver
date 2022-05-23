@@ -1,9 +1,12 @@
 module mod_cell_data_struc
-  use mod_cell_geometry
+  use config
   implicit none
   type Cell_Face
     integer :: neighbor_cell_id
     real,dimension(2,2) :: face_node_pair !in counterclockwise order
+    !intercept between parent cell/neighbor cell line and cell face line
+    real, dimension(2) :: face_intercept
+    real, dimension(2) :: face_outward_normal
   end type Cell_Face
 
   type Cell
@@ -18,7 +21,7 @@ module mod_cell_data_struc
     real, dimension(:), allocatable :: cell_quantities
   end type Cell
 
-contains
+contains !should separate cell data type and methods b/c don't want to need mod_cell_geometry to compile this mod
   function init_cell(cell_id,cell_quantities,cell_faces)result(myCell)
     implicit none
     integer :: cell_id
@@ -34,20 +37,13 @@ contains
     allocate(myCell%cell_quantities(size(cell_quantities)))
     myCell%cell_quantities=cell_quantities
     num_faces = size(cell_faces)
+    if (mod_cell_data_struc_debug .eqv. .true.) then
+      print *, "(mod_cell_data_struc) Number of cell faces ", num_faces
+    end if
     allocate(myCell%cell_faces(num_faces))
     myCell%cell_faces=cell_faces
 
-    !construct nodes for geometry calclulations
-    allocate(nodes(num_faces+1,2))
-    do i=1,num_faces
-      nodes(i,:) = myCell%cell_faces(i)%face_node_pair(1,:)
-    end do
-    !first node must be repeated for area and centroid functions
-    nodes(num_faces+1,:) = myCell%cell_faces(1)%face_node_pair(1,:)
-
-    myCell%cell_area = calc_cell_area(nodes)
-    myCell%cell_centroid = calc_cell_centroid(nodes)
-
+    !geometric values in each cell must be calculated with mod_cell_geometry
   end function init_cell
 
 
@@ -59,6 +55,10 @@ contains
 
     myCell_Face%neighbor_cell_id=neighbor_cell_id
     myCell_Face%face_node_pair=face_node_pair
+
+    !dummy values.. to be calculated later with cell geometry
+    myCell_Face%face_intercept = (/0.0,0.0/)
+    myCell_Face%face_outward_normal = (/0.0,0.0/)
   end function init_cell_face
 
 end module mod_cell_data_struc

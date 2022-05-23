@@ -16,40 +16,44 @@ program test_bootstrap_mesh
   !this is intended to convert my existing grids into the unstructured mesh form which
     !my Simple_FVM code is now using
   !will need to get better solution to this for more flexibility
-  print *, "Enter grid filename"
+  print *, "(test_bootstrap_mesh) Enter grid filename"
   read *, filename
 
   call get_grid_info(filename,height,width)
-  print *, "dimensions are ",width,"x",height
+  print *, "(test_bootstrap_mesh) dimensions are ",width,"x",height
   allocate(grid(width,height,2))
   cell_id_length=(width-1)*(height-1)
   allocate(cell_array(cell_id))
 
   call read_grid(filename,grid)
-
+  print *, "(test_bootstrap_mesh) grid loaded"
   cell_array=init_cell_array(grid)
+  print *, "(test_bootstrap_mesh) cell_array initialized"
+
 
   cell_id = 1
+  do i=1,9
+    print *, "(test_bootstrap_mesh) Cell id for ",i," is ",cell_array(i)%cell_id
+  end do
 
-  print *, "test Cell id ",cell_array(cell_id)%cell_id
-  print *, "test cell quantity ",cell_array(cell_id)%cell_quantities(1)
-  print *, "test cell area",cell_array(cell_id)%cell_area
-  print *, "test cell centroid",cell_array(cell_id)%cell_centroid(:)
-  print *, "test cell faces"
+  print *, "(test_bootstrap_mesh) test Cell id ",cell_array(cell_id)%cell_id
+  print *, "(test_bootstrap_mesh) test cell quantity ",cell_array(cell_id)%cell_quantities(:)
+  print *, "(test_bootstrap_mesh) test cell area",cell_array(cell_id)%cell_area
+  print *, "(test_bootstrap_mesh) test cell centroid",cell_array(cell_id)%cell_centroid(:)
+  print *, "(test_bootstrap_mesh) test cell faces"
   do i=1,4
-    print *, "Neighbor id ",cell_array(cell_id)%cell_faces(i)%neighbor_cell_id
+    print *, "(test_bootstrap_mesh) Neighbor id ",cell_array(cell_id)%cell_faces(i)%neighbor_cell_id
     nodepair1=cell_array(cell_id)%cell_faces(i)%face_node_pair(1,:)
     nodepair2=cell_array(cell_id)%cell_faces(i)%face_node_pair(2,:)
-    print *, "Face nodes (",nodepair1,"),(",nodepair2,")"
-    print *, "Outward norm ",calc_outward_normal(cell_array(cell_id)%cell_faces(i)%face_node_pair(:,:))
-    print *, " "
+    print *, "(test_bootstrap_mesh) Face nodes (",nodepair1,"),(",nodepair2,")"
+    print *, "(test_bootstrap_mesh) Outward norm ",cell_array(cell_id)%cell_faces(i)%face_outward_normal
+    print *, "(test_bootstrap_mesh) intercept ", cell_array(cell_id)%cell_faces(i)%face_intercept
   end do
 
   node_pair_array = gen_node_pair_array(1,1,grid)
   do i=1,4
-    print *, "Node pair ","(",(node_pair_array(i,:)),"),(",(node_pair_array(i+1,:)),")"
-    print *, "Outward norm ",calc_outward_normal(node_pair_array(i:i+1,:))
-    print *, " "
+    print *, "(test_bootstrap_mesh) Node pair ","(",(node_pair_array(i,:)),"),(",(node_pair_array(i+1,:)),")"
+    print *, "(test_bootstrap_mesh) Outward norm ",calc_outward_normal(node_pair_array(i:i+1,:))
   end do
 
 end program test_bootstrap_mesh

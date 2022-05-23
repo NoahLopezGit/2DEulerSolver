@@ -1,6 +1,8 @@
 module bootstrap_mesh
+  use config
   use mod_read_grid
   use mod_cell_data_struc
+  use mod_cell_geometry
   implicit none
 
 contains
@@ -8,12 +10,13 @@ contains
     real, dimension(:,:,:) :: grid
     integer, dimension(:,:), allocatable :: cell_map
     type(Cell), dimension(:), allocatable :: cell_array
-    real, dimension(1) :: cell_quantities
+    real, dimension(3) :: cell_quantities
     type(Cell_Face), dimension(4) :: tmp_face_array
     integer :: i,j,itr
     integer, dimension(4) :: cell_map_array
     real, dimension(5,2) :: node_pair_array
     real, dimension(2,2) :: tmp_node_pair
+    real :: x,y,u_vec,v_vec
 
     allocate(cell_map(size(grid,1)-1,size(grid,2)-1)) !cells are one less than grid dims
     !mapping cell id to i,j index
@@ -29,19 +32,58 @@ contains
 
 
     !cells with node associated with boundaries will have negative ids
-    cell_quantities=(/0/) !dummy holder for quanties
+    !for now the first and second quantity will hold the u and v field vectors
+
+    if (bootstrap_debug .eqv. .true.) then
+      print *, "(bootstrap_mesh) assigning cell quantities"
+    end if
+
+    cell_quantities=(/0.0,0.0,0.0/) !dummy holder for quanties
     do i=1,size(grid,1)-1
       do j=1,size(grid,2)-1
+        if (bootstrap_debug .eqv. .true.) then
+          print *, "(bootstrap_debug) Initializing cell ",cell_map(i,j)
+        end if
         cell_map_array = gen_cell_map_array(i,j,cell_map)
         node_pair_array = gen_node_pair_array(i,j,grid)
         do itr=1,4
           tmp_node_pair(1,:) = node_pair_array(itr,:)
           tmp_node_pair(2,:) = node_pair_array(itr+1,:)
           tmp_face_array(itr) = init_cell_face(cell_map_array(itr),tmp_node_pair)
+          if (bootstrap_debug .eqv. .true.) then
+            print *, "(bootstrap_debug) tmp cell face ",itr
+            print *, "(bootstrap_debug) neighbor cell id ",tmp_face_array(itr)%neighbor_cell_id
+            print *, "(bootstrap_debug) face_node_pair ",tmp_face_array(itr)%face_node_pair
+            print *, "(bootstrap_debug) face_interept ",tmp_face_array(itr)%face_intercept
+            print *, "(bootstrap_debug) face_outward_normal ",tmp_face_array(itr)%face_outward_normal
+          end if
         end do
         cell_array(cell_map(i,j))= init_cell(cell_map(i,j),cell_quantities,tmp_face_array)
+        !x = cell_array(cell_map(i,j))%cell_centroid(1)
+        !y = cell_array(cell_map(i,j))%cell_centroid(2)
+        !u_vec = x+y
+        !v_vec = y
+        !cell_array(cell_map(i,j))%cell_quantities(:)=(/u_vec,v_vec,0.0/)
       end do
     end do
+
+    if (bootstrap_debug .eqv. .true.) then
+      print *, "(bootstrap_mesh) calculating cell area and centroid"
+      print *, "(bootstrap_mesh) size of cell_array ", size(cell_array)
+    end if
+    !calculates each cell centroid and area
+    do i=1,size(cell_array)
+      call calc_cell_geometry(i,cell_array)
+    end do
+
+    if (bootstrap_debug .eqv. .true.) then
+      print *, "(bootstrap_mesh) calculating cell faces normal and intercept"
+    end if
+    !calculating each face outward normal and intercept
+    do i=1,size(cell_array)
+      call calc_cell_face_geometry(i,cell_array)
+    end do
+
   end function init_cell_array
 
 
